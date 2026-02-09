@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will you be my Valentine?</title>
+    <style>
+        :root {
+            --pink: #ef627a;
+            --dark-pink: #c9184a;
+            --bg: #ffe5ec;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--bg);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* --- PROPOSAL STAGE --- */
+        #proposalStage {
+            text-align: center;
+            margin-top: 8vh;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .image-card {
+            background: white;
+            padding: 10px;
+            border-radius: 40px;
+            display: inline-block;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .image-card img {
+            width: 250px;
+            border-radius: 30px;
+            display: block;
+        }
+
+        h1 {
+            color: var(--pink);
+            font-size: 2.5rem;
+            margin: 20px 0;
+            font-weight: bold;
+            transition: color 0.4s;
+        }
+
+        /* Fixed Button Layout */
+        .interaction-area {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            min-height: 150px;
+            z-index: 100; /* Keeps buttons above GIF and Text */
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center; /* Grows from center */
+        }
+
+        #yesBtn { background-color: var(--pink); color: white; position: relative; }
+        #noBtn { background-color: white; color: #444; position: relative; transition: left 0.2s, top 0.2s; }
+
+        /* --- SCRATCH & CAROUSEL STAGE --- */
+        #scratchStage {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .card-wrapper {
+            position: relative;
+            width: 320px;
+            height: 550px; /* Slightly taller for text */
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 10px solid white;
+        }
+
+        .voucher-inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #eee;
+        }
+
+        .carousel-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(1.15);
+            transition: opacity 1s ease-in-out, transform 3s ease-in-out;
+        }
+
+        .carousel-img.active { opacity: 1; transform: scale(1); }
+
+        .love-note {
+            color: var(--dark-pink);
+            font-size: 1rem;
+            line-height: 1.4;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #scratchCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 20;
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        .heart { position: absolute; top: -10%; animation: fall linear forwards; z-index: 0; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="proposalStage">
+        <div class="image-card">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueXNqZzZxeWp6ZzZxeWp6ZzZxeWp6ZzZxeWp6ZzZxeWp6ZzZxeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/cLS1cfxvGOPVpf9g3y/giphy.gif" alt="Cute character">
+        </div>
+        <h1 id="mainText">Will you be my Valentine?</h1>
+        <div class="interaction-area">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
+    </div>
+
+    <div id="scratchStage">
+        <audio id="bgMusic" src="song.mp3" preload="auto"></audio>
+        <h1 style="font-size: 1.8rem; color: #c9184a; margin-bottom: 10px;">I Admire You... ❤️</h1>
+        <div class="card-wrapper">
+            <div class="voucher-inner">
+                <div class="carousel-container" id="carousel"></div>
+                <div class="love-note">
+                    Meri Pyaari Buggi ❤<br>
+                    This voucher is for unlimited kisses, head scratches, and healing cuddles.<br>
+                    Your smile brings joy to my heart and soul.<br>
+                    Cannot wait to marry you !!<br><br>
+                    Lots of Love,<br>
+                    Buggu ❤️
+                </div>
+            </div>
+            <canvas id="scratchCanvas" width="320" height="550"></canvas>
+        </div>
+        <p style="margin-top:15px; color:#ef627a; font-weight:bold; text-align: center; width: 80%;">Kade Milke Baitho, Gall Karie pyaar di!</p>
+    </div>
+
+    <script>
+        const myImages = ["booi_6.jpeg", "booi_4.jpeg", "booi_5.jpeg", "booi_3.jpeg", "booi_2.jpeg", "booi.jpeg", "booi_1.jpeg", "booi_7.jpeg", "booi_8.jpeg", "booi_9.jpeg"];
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const mainText = document.getElementById('mainText');
+        const bgMusic = document.getElementById('bgMusic');
+        const body = document.body;
+
+        let noCount = 0;
+        let yesScale = 1;
+        let scratchCount = 0;
+
+        function moveNo(e) {
+            if (e) e.preventDefault();
+            if (noCount < 15) {
+                noCount++;
+                // Margin prevents button from going behind GIF (top) or off-screen (bottom/sides)
+                const marginY = 180;
+                const marginX = 50;
+
+                const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - (marginX * 2)) + marginX;
+                const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - marginY) + marginY;
+
+                noBtn.style.position = 'fixed';
+                noBtn.style.left = x + 'px';
+                noBtn.style.top = y + 'px';
+
+                yesScale += 0.3;
+                yesBtn.style.transform = `scale(${yesScale})`;
+                mainText.innerText = "Please say Yes! 🥺";
+
+                if (noCount > 5) {
+                    body.style.backgroundColor = "#ef627a";
+                    mainText.style.color = "white";
+                }
+            }
+        }
+
+        noBtn.addEventListener('mouseover', moveNo);
+        noBtn.addEventListener('click', moveNo);
+
+        yesBtn.addEventListener('click', () => {
+            document.getElementById('proposalStage').style.display = 'none';
+            document.getElementById('scratchStage').style.display = 'flex';
+            body.style.backgroundColor = '#ffe5ec';
+            bgMusic.currentTime = 23;
+            bgMusic.play().catch(e => console.log("Audio play blocked: Use a click to trigger."));
+            setupCarousel();
+            initScratch();
+            setInterval(createHeart, 150);
+        });
+
+        function setupCarousel() {
+            const container = document.getElementById('carousel');
+            myImages.forEach((src, index) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = 'carousel-img' + (index === 0 ? ' active' : '');
+                img.onerror = () => { img.src = 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=500'; };
+                container.appendChild(img);
+            });
+        }
+
+        function startCarousel() {
+            let currentIdx = 0;
+            setInterval(() => {
+                const imgs = document.querySelectorAll('.carousel-img');
+                if (imgs.length < 2) return;
+                imgs[currentIdx].classList.remove('active');
+                currentIdx = (currentIdx + 1) % imgs.length;
+                imgs[currentIdx].classList.add('active');
+            }, 3000);
+        }
+
+        function initScratch() {
+            const canvas = document.getElementById('scratchCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#d1d1d1';
+            ctx.fillRect(0, 0, 320, 550);
+            ctx.fillStyle = '#ef627a';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('SCRATCH TO REVEAL ❤️', 160, 275);
+
+            let isDrawing = false;
+            function scratch(e) {
+                if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+                const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath(); ctx.arc(x, y, 40, 0, Math.PI * 2); ctx.fill();
+                scratchCount++;
+                if (scratchCount > 400) {
+                    canvas.style.transition = "opacity 1.5s";
+                    canvas.style.opacity = "0";
+                    setTimeout(() => { canvas.style.display = "none"; startCarousel(); }, 1000);
+                }
+            }
+            canvas.addEventListener('mousedown', () => isDrawing = true);
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
+            window.addEventListener('mouseup', () => isDrawing = false);
+            window.addEventListener('touchend', () => isDrawing = false);
+            canvas.addEventListener('mousemove', scratch);
+            canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = ['❤️', '🩹', '💖', '🌸'][Math.floor(Math.random() * 4)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = Math.random() * 20 + 20 + 'px';
+            heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 4000);
+        }
+    </script>
+</body>
+</html>
